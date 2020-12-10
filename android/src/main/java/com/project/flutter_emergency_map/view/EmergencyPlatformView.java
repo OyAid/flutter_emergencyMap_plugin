@@ -5,14 +5,14 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.alibaba.fastjson.JSON;
 import com.egis.basemap.MapParams;
 import com.egis.basemap.MapView;
 import com.egis.geom.Point;
 import com.egis.map.Map;
 import com.egis.map.scalecontrol.ScaleControlOption;
+import com.google.gson.Gson;
 import com.project.flutter_emergency_map.utils.EmergencyUtils;
-
-import java.util.HashMap;
 
 import io.flutter.Log;
 import io.flutter.plugin.common.BinaryMessenger;
@@ -89,6 +89,10 @@ public class EmergencyPlatformView extends PlatformViewFactory implements Platfo
      */
     private BinaryMessenger messenger;
 
+    private int zoomLevel = 3; //widget中初始化的比例尺
+    
+    private Point point;  //widget中初始化的地图中心位置
+
     /**
      * 初始化工厂信息，此处的域是 PlatformViewFactory
      */
@@ -98,15 +102,13 @@ public class EmergencyPlatformView extends PlatformViewFactory implements Platfo
         Log.e("初始化工厂信息", "初始化工厂信息");
         mapView = new MapView(context);
         params = new MapParams();
+        params.setDefaultLevel(zoomLevel);  //
         ScaleControlOption option = new ScaleControlOption();
         option.setRight("60px");
-//        option.setBackground("rgba(255,26,40,0)");
-//        option.setBackground("rgba(255,255,255,0.5)");
 //        params.setScaleControlOption(option);
 //        params.setShowScaleControl(true);  //是否显示比例尺
-        params.setMaxZoom(100);
-//        params.setDefaultCenter(new Point(103.494973447, 35.2141988589));
         mapView.setDefaultParams(params);
+        mapView.setLocationShow(true);
         mapView.setCompleteCallback(new MapView.IInitCompleteCallback() {
             @Override
             public void complete() {
@@ -133,53 +135,74 @@ public class EmergencyPlatformView extends PlatformViewFactory implements Platfo
     public PlatformView create(Context context, int viewId, Object args) {
         EmergencyPlatformView view = new EmergencyPlatformView(context, messenger);
         new MethodChannel(messenger, SIGN + "_" + viewId).setMethodCallHandler(view);
+        this.initValue(args);
         return view;
+    }
+
+    /**
+     * 获取widget中初始化的值
+     */
+    public void initValue(Object args) {
+        if (args != null) {
+            Log.e("create", String.valueOf(args));
+            Gson gson = new Gson();
+            String json = gson.toJson(args);
+            java.util.Map mapType = JSON.parseObject(json, java.util.Map.class);
+            zoomLevel = (int) mapType.get("zoomLevel");
+//            point = new Point(12, 15);
+
+            Log.e("map", String.valueOf(mapType.get("center")));
+            Log.e("map", String.valueOf(mapType.get("zoomLevel")));
+        }
     }
 
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
         switch (call.method) {
-            case "showMap":
-                this.startMapView(call, result);
-                break;
             case "setMapCenter":
                 this.setMapCenter(call, result);
+                break;            
+            case "setLocationShow":
+                this.setLocationShow(call, result);
+                break;
+            case "addPointList":
+                this.addPointList(call, result);
                 break;
             default:
                 result.notImplemented();
         }
     }
-
-    /**
-     * 开启地图
-     */
-    private void startMapView(@NonNull MethodCall call, @NonNull final MethodChannel.Result result) {
-//        mapView.setCompleteCallback(new MapView.IInitCompleteCallback() {
-//            @Override
-//            public void complete() {
-//                mMap = mapView.getMap();
-//                result.success('d');
-//            }
-//        });
-    }
-
+    
     /**
      * 设置地图中心
      */
     private void setMapCenter(@NonNull MethodCall call, @NonNull final MethodChannel.Result result) {
-//        HashMap<String, Double> map = new HashMap<>();
-        //给map中添加元素
-//        map.put("星期一", "Monday");
-//        map = EmergencyUtils.getParam(call, result, "setMapCenter");
-//        Point point = new Point(map["lat"], map["lng"]);
-//        double latitude = map["lat"];  //y
-//        double longitude = map["lng"];  //x
-
-//        params.setDefaultCenter(point);
-        Log.e("设置地图中心", "设置地图中心");
-        params.setDefaultCenter(new Point(103.494973447, 35.2141988589));
+        double lat = EmergencyUtils.getParam(call, result, "lat");  //y
+        double lng = EmergencyUtils.getParam(call, result, "lng");  //x
+        Log.e("设置地图中心参数-y", String.valueOf(lat));
+        Log.e("设置地图中心参数-x", String.valueOf(lng));
+        mMap.setCenter(new Point(lng, lat));
+        params.setDefaultLevel(3);  //
+        mapView.setDefaultParams(params);
         result.success(true);
     }
 
+    /**
+     * 显示当前定位
+     */
+    private void setLocationShow(@NonNull MethodCall call, @NonNull final MethodChannel.Result result) {
+        Log.e("显示当前位置", "显示当前位置");
+        mapView.setLocationShow(true);
+        result.success(mMap.getZoomLevel());
+    }
+
+    /**
+     * 地图上绘制点
+     */
+    private void addPointList(@NonNull MethodCall call, @NonNull final MethodChannel.Result result) {
+        Log.e("地图上绘制点", "地图上绘制点");
+
+        result.success(true);
+    }
 }

@@ -28,7 +28,6 @@ class __MapWidgetState extends State<_MapWidget> {
 
   void createView(EmergencyMapController emergencyMapController) {
     controller = emergencyMapController;
-    controller.showMap(frontCamera: true);
   }
 
 
@@ -40,13 +39,29 @@ class __MapWidgetState extends State<_MapWidget> {
           Expanded(
               child: EmergencyMapWidget(
                 onViewCreated: createView,
+                mapOptions: MapOptions(
+                  zoomLevel: 3,
+                  center: FlutterLocationEntity(lat: 35.2141988589, lng: 103.494973447)
+                ),
               ),
           ),
-          RaisedButton(
-              onPressed: () {
-                controller.setMapCenter(flutterLocationEntity: FlutterLocationEntity());
-              },
-              child: Text('设置中心'),
+          Row(
+            children: [
+              RaisedButton(
+                onPressed: () {
+                  controller.setMapCenter(FlutterLocationEntity(lat: 35.2141988589, lng: 103.494973447));
+                },
+                child: Text('设置地图中心'),
+              ),
+              RaisedButton(
+                onPressed: () {
+                  controller.setLocationShow().then((value) {
+                    print('等级---$value');
+                  });
+                },
+                child: Text('显示当前位置'),
+              )
+            ],
           )
         ],
       )

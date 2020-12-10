@@ -20,4 +20,11 @@ class FlutterLocationEntity {
     return data;
   }
 
+  Map<String, Object> toMap() {
+    return {
+      'lat': this.lat,
+      'lng': this.lng,
+    };
+  }
+
 }

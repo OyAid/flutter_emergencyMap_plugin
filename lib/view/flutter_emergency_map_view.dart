@@ -1,5 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_emergency_map/controller/flutter_emergency_map_controller.dart';
+import 'package:flutter_emergency_map/entity/flutter_map_options_entity.dart';
+
+import '../entity/flutter_map_options_entity.dart';
 
 /// 应急地图Widget
 class EmergencyMapWidget extends StatefulWidget {
@@ -7,7 +11,12 @@ class EmergencyMapWidget extends StatefulWidget {
   /// 创建事件
   final ValueChanged<EmergencyMapController> onViewCreated;
 
-  EmergencyMapWidget({this.onViewCreated});
+  final MapOptions mapOptions; //地图基本配置
+
+  EmergencyMapWidget({
+    this.onViewCreated,
+    this.mapOptions,
+  });
 
   @override
   _EmergencyMapWidgetState createState() => _EmergencyMapWidgetState();
@@ -20,14 +29,22 @@ class _EmergencyMapWidgetState extends State<EmergencyMapWidget> {
   static const String type = "mapView";
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AndroidView(
       viewType: type,
       onPlatformViewCreated: onPlatformViewCreated,
       // hitTestBehavior: widget.hitTestBehavior, //渗透点击事件
       // layoutDirection: widget.layoutDirection, //嵌入视图文本方向
-      // creationParams: widget.mapOptions.toMap() as dynamic, //向视图传递参数
-      // creationParamsCodec: new StandardMessageCodec(), //编解码器类型
+      creationParams: widget.mapOptions != null
+          ? widget.mapOptions.toMap() as dynamic
+          : null, //向视图传递参数
+      creationParamsCodec: StandardMessageCodec(), //编解码器类型
     );
   }
 

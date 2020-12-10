@@ -7,5 +7,6 @@ export 'controller/flutter_emergency_map_controller.dart';
 // export 'enums/listener_type_enum.dart';
 
 export 'entity/flutter_location_entity.dart';
+export 'entity/flutter_map_options_entity.dart';
 
 export 'view/flutter_emergency_map_view.dart';

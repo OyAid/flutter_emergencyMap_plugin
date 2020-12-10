@@ -27,23 +27,22 @@ class EmergencyMapController {
   //   _eventSubscription = EventChannel
   // }
 
-  /// 展示地图
-  Future<int> showMap({
-    @required bool frontCamera,
-  }) async {
-    return _channel.invokeMethod('showMap', {
-      "frontCamera": frontCamera,
-    });
-  }
 
   ///设置地图中心
-  Future<bool> setMapCenter({
-    @required FlutterLocationEntity flutterLocationEntity,
-  }) async {
-    // return _channel.invokeMethod('setMapCenter', {
-    //   "setMapCenter": flutterLocationEntity,
-    // });
-    return _channel.invokeMethod('setMapCenter');
+  Future<void> setMapCenter(FlutterLocationEntity flutterLocationEntity) async {
+    return await _channel.invokeMethod(
+        'setMapCenter', flutterLocationEntity.toJson()
+    );
+  }
+
+  ///显示当前定位
+  Future<dynamic> setLocationShow() async {
+    return _channel.invokeMethod('setLocationShow');
+  }
+
+  ///地图上绘制点
+  Future<bool> addPointList() async {
+    return _channel.invokeMethod('addPointList');
   }
 
 
