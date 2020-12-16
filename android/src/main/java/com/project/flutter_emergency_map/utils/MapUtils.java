@@ -25,6 +25,7 @@ public class MapUtils {
     public static final String LAYER_ID_VECTOR = "vectorTileLayer";
     public static final String LAYER_ID_EWS = "ewsLayer";
     public static final String LAYER_ID_TRAFFIC = "trafficLayer";
+    public static final String BASE64_HEAFER = "data:image/png;base64,";
 
     /**
      * 添加矢量瓦片图层
@@ -134,5 +135,10 @@ public class MapUtils {
         source.setUrl("http://172.17.38.105:8081/wmts");
         layerEWS.setSource(source);
         map.addLayer(layerEWS);
+    }
+
+    public static void addFeatureLayer(Map map){
+        FeatureLayer featureLayer = new FeatureLayer("featureLayer", "featureLayer");
+        map.addLayer(featureLayer);
     }
 }

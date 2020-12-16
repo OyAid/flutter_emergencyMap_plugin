@@ -35,15 +35,37 @@ class EmergencyMapController {
     );
   }
 
-  ///显示当前定位
-  Future<dynamic> setLocationShow() async {
-    return _channel.invokeMethod('setLocationShow');
+  ///设置地图中心
+  Future<bool> showLocation() async {
+    return await _channel.invokeMethod('showLocation');
   }
 
   ///地图上绘制点
-  Future<bool> addPointList() async {
-    return _channel.invokeMethod('addPointList');
+  Future<bool> addMarkers() async {
+    return _channel.invokeMethod('addMarkers');
   }
 
+  ///地图上绘制点
+  Future<bool> setMapChart() async {
+    return _channel.invokeMethod('setMapChart');
+  }
+
+  /// 图层切换
+  Future<bool> mapSwitch({
+    @required bool is2DMap, // true：2D地图； false：影像地图。
+  }) async {
+    return _channel.invokeMethod('mapSwitch', {
+      "is2DMap": is2DMap ?? true,
+    });
+  }
+
+  /// 缩放地图到指定的缩放级别
+  Future<bool> zoomToLevel({
+    @required int level, // level: 等级 1-10
+  }) async {
+    return _channel.invokeMethod('zoomToLevel', {
+      "level": level,
+    });
+  }
 
 }

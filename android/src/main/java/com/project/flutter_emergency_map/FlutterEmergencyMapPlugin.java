@@ -9,6 +9,8 @@ import com.egis.map.Map;
 import com.gsafety.mapsdk.core.location.GMapLocationClient;
 import com.gsafety.mapsdk.core.location.listener.GMapLocationListener;
 import com.gsafety.mapsdk.core.location.model.GMapLocation;
+import com.gsafety.mapsdk.core.location.model.GmapLocationClientOption;
+import com.project.flutter_emergency_map.utils.EWSConfig;
 import com.project.flutter_emergency_map.utils.EmergencyUtils;
 import com.project.flutter_emergency_map.view.EmergencyPlatformView;
 
@@ -23,32 +25,41 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 import io.flutter.plugin.common.StandardMessageCodec;
 import io.flutter.plugin.platform.PlatformViewRegistry;
 
+import static com.project.flutter_emergency_map.utils.MapUtils.addCvaLayer;
+import static com.project.flutter_emergency_map.utils.MapUtils.addTileLayer;
+
 
 /** FlutterEmergencyMapPlugin */
 public class FlutterEmergencyMapPlugin implements FlutterPlugin, MethodCallHandler {
 
   private MethodChannel channel;
 
-  private Context context;
-
   ///定位
   GMapLocationClient gMapLocationClient;
+
+  /**
+   * 地图map
+   */
+  private MapView mapView;
+  private Map mMap;
 
 
   /**
    * 初始化
    */
   public FlutterEmergencyMapPlugin(BinaryMessenger messenger, Context context, MethodChannel channel, PlatformViewRegistry registry) {
-    ///初始化定位
-    gMapLocationClient = new GMapLocationClient(
-            context,
-            "http://ip:port/service/api/egis/base/v1/wmts",
-            "Token",
-            "your client_id",
-            "your client_secret",
-            "your token_url"
-    );
+//    //在此初始化加快地图打开速度
+//    mapView = new MapView(context);
+//    mapView.setCompleteCallback(new MapView.IInitCompleteCallback() {
+//      @Override
+//      public void complete() {
+//        mMap = mapView.getMap();
+//      }
+//    });
 
+    //2，初始化定位
+    gMapLocationClient = new GMapLocationClient(context, EWSConfig.SERVICE_URL,EWSConfig.AUTH_TYPE,EWSConfig.AUTH_CLIENT_ID,EWSConfig.CLIENT_SECRET,EWSConfig.TOKEN_URL);
+    //3，设置监听
     gMapLocationClient.setgMapLocationListener( new GMapLocationListener() {
 
       @Override
@@ -61,6 +72,17 @@ public class FlutterEmergencyMapPlugin implements FlutterPlugin, MethodCallHandl
       }
 
     });
+    //4，配置参数
+    GmapLocationClientOption clientOption = new GmapLocationClientOption();
+    //设置坐标系类型 默认CGCS2000
+    clientOption.setCoorType("CGCS2000");
+    //是否仅一次定位 默认true
+    clientOption.setOnceLocation(true);
+    //是否需要地址信息 默认false
+    clientOption.setNeedAddress(true);
+    //定位间隔时间，oncelocation = false 才有效
+    clientOption.setInterval(5000);
+    gMapLocationClient.setGmapLocationClientOption(clientOption);
 
     //注册地图view
     registry.registerViewFactory(EmergencyPlatformView.SIGN, new EmergencyPlatformView(context, messenger));
@@ -108,6 +130,7 @@ public class FlutterEmergencyMapPlugin implements FlutterPlugin, MethodCallHandl
    */
   private void startLocation(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
     Log.e("测试", "进入原生方法");
+    //5，开启定位
     gMapLocationClient.startLocation();
 //    gMapLocationClient.setgMapLocationListener( new GMapLocationListener() {
 //
